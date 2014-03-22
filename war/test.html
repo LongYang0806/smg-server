@@ -10,7 +10,9 @@
 <h3> Test Page</h3>
 
 <p><a href = "#" id = "nonCORSlink">nonCORS AJAX</a></p>
-<a href = "#" id = "CORSlink">CORS AJAX</a>
+<p><a href = "#" id = "CORSlink">CORS AJAX</a></p>
+<p><a href = "#" id = "POST-PLAYER">POST-PLAYER</a></p>
+
 
 
 <script type="text/javascript">
@@ -23,10 +25,14 @@ $(document).ready(function() {
   $("#CORSlink").on("click", function(event) {
     ajaxCall("http://localhost:8888/test");
   });
+  
+  $("#POST-PLAYER").on("click", function(event) {
+	  ajaxCallPost("http://localhost:8888/player");
+  });
 });
 
 function ajaxCall(url) {
-  var jsonObj = { "key": "value2" };
+  var jsonObj = { "key": "value" };
   $.ajax({
     url: url, 
     type: "GET",
@@ -36,6 +42,24 @@ function ajaxCall(url) {
     error: function(jqXHR, textStatus, errorThrown) {
       alert("ERROR: " + textStatus + " " + errorThrown);
     }});
+}
+
+function ajaxCallPost(url){
+	var jsonObj = {'EMAIL': 'aaaa@nyu.edu'};
+	var jsonString = JSON.stringify(jsonObj);
+	alert(jsonString);
+	$.ajax({
+		url: url,
+		//dataType: 'json',
+		data: jsonString,
+		type: "POST",
+		success: function(data, textStatus, jqXHR){
+			alert("SUCCESS");
+		},
+		error: function(jqXHR, textStatus, errorThrown){
+			alert("ERROR: " + textStatus + " " + errorThrown);
+		}
+	});
 }
 </script>
 </body>
