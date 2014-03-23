@@ -18,6 +18,7 @@ import org.smg.util.AccessSignatureUtil;
 import org.smg.util.CORSUtil;
 import org.smg.util.JSONUtil;
 
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
 
@@ -35,17 +36,29 @@ public class PlayersServlet extends HttpServlet {
 			throws IOException {
 		CORSUtil.addCORSHeader(resp);
 		resp.setContentType("text/plain");
-		String playerId = null;
+		String playerIdStr = null;
 		if (req.getPathInfo().length() != 0 && req.getPathInfo() != null)
-			playerId = req.getPathInfo().substring(1);
+			playerIdStr = req.getPathInfo().substring(1);
 		else
-			playerId = null;
+			playerIdStr = null;
+		long playerId = Long.parseLong(playerIdStr);
+		JSONObject returnValue = new JSONObject();
 		Map<String, Object> map = req.getParameterMap();
-		resp.getWriter().println("Player: " + playerId);
-		resp.getWriter().println("Parameter: ");
-		for (String key : map.keySet()) {
-			resp.getWriter().print("    " + key + ":" + map.get(key));
+		try {
+			Player player = DatabaseDriver.getPlayerById(playerId);
+		} catch (EntityNotFoundException e) {
+			try {
+				returnValue.put("ERROR", "WRONG_PLAYE_ID");
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
+		// resp.getWriter().println("Player: " + playerId);
+		// resp.getWriter().println("Parameter: ");
+		// for (String key : map.keySet()) {
+		// resp.getWriter().print("    " + key + ":" + map.get(key));
+		// }
 	}
 
 	@Override
@@ -118,7 +131,7 @@ public class PlayersServlet extends HttpServlet {
 			return;
 		} else if (saveResult.startsWith("SUCCESS:")) {
 			try {
-				
+
 				returnValue.put("PLAYERID", saveResult.split(":")[1]);
 				returnValue.put("ACCESSSIGNATURE", saveResult.split(":")[2]);
 				returnValue.write(resp.getWriter());
